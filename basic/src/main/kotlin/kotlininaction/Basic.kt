@@ -3,6 +3,18 @@ package kotlininaction
 fun main(args: Array<String>) {
     printName()
     classTest()
+    iterTest()
+}
+
+fun iterTest() {
+    for (c in 'a' downTo 'F') {
+        println(c)
+    }
+
+    val list = arrayListOf(1, 4, 5, 11)
+    for ((index, element) in list.withIndex()) {
+        println("$index : $element")
+    }
 }
 
 private fun classTest() {
