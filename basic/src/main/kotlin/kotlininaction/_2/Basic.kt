@@ -1,4 +1,4 @@
-package kotlininaction
+package kotlininaction._2
 
 fun main(args: Array<String>) {
     printName()
