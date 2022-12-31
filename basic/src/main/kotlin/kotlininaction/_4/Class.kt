@@ -27,6 +27,26 @@ fun main() {
     println(DataClass("현모", 25) == DataClass("길동", 25))
     println(DataClass("현모", 25).copy(age = 26)) // 나이를 먹었다!
     println()
+
+    val countingSet = CountingSet<Int>()
+    countingSet.add(1)
+    println(countingSet.objectsAdded)
+    countingSet.addAll(listOf(2, 3, 4))
+    println(countingSet.objectsAdded)
+    println()
+
+    Singleton.printMyField()
+    println()
+
+    println(Person.newHappyPerson("현모"))
+    println(Person.newSadPerson("현모"))
+    println(Person.newAngryPerson("현모"))
+    println(Person.fromJSON("{name:현모}"))
+    println(Person.toJson(Person.newHappyPerson("현모")))
+    println(object : Play {
+        override fun play(): String = "저는 롤을 하면서 놉니다!"
+    }) // 무명 객체 사용!
+    println()
 }
 
 // 코틀린 인터페이스 알아보기
@@ -129,3 +149,56 @@ data class DataClass(
     val name: String,
     val age: Int
 ) // toString, equals, hashCode를 모두 만들어준다.
+
+// by 사용해보기
+class CountingSet<T>(
+    private val innerSet: MutableCollection<T> = HashSet<T>()
+) : MutableCollection<T> by innerSet {
+    var objectsAdded = 0
+
+    override fun add(element: T): Boolean {
+        objectsAdded++
+        return innerSet.add(element)
+    }
+
+    override fun addAll(elements: Collection<T>): Boolean {
+        objectsAdded += elements.size
+        return innerSet.addAll(elements)
+    }
+}
+
+// objects
+object Singleton {
+    val myField = "hello I'm Singleton field!"
+
+    fun printMyField() {
+        println(myField)
+    }
+}
+
+fun Person.Companion.newAngryPerson(name: String) = Person("angry_${name}")
+
+data class Person(private val name: String) {
+    companion object : JSONFactory<Person> {
+        fun newHappyPerson(name: String) = Person("happy_${name}")
+        fun newSadPerson(name: String) = Person("sad_${name}")
+        override fun toJson(yourObject: Person) = "{name:${yourObject.name}}"
+    }
+}
+
+interface JSONFactory<T> {
+    fun toJson(yourObject: T): String
+}
+
+fun Person.Companion.fromJSON(jsonText: String): Person {
+    val jsonMap = jsonText.substring(1, jsonText.length - 1)
+        .split(",")
+        .map { keyValue -> keyValue.split(":") }
+    val nameMap = jsonMap.first { keyValue -> keyValue[0] == "name" }
+    return Person(nameMap[1])
+}
+
+@FunctionalInterface
+interface Play {
+    fun play(): String
+}
